@@ -59,4 +59,36 @@ class PersonRepositoryImplTest {
     listMonoPerson.subscribe(list -> list.forEach(System.out::println));
   }
 
+  @Test
+  void testFilterOnName() {
+    personRepository.findAll().filter(person -> person.getFirstName().equals("Fiona"))
+        .subscribe(person -> System.out.println(person.getLastName()));
+  }
+
+  @Test
+  void testGetById() {
+    Mono<Person> fionaMono = personRepository.findAll().filter(person -> person.getFirstName().equals("Fiona")).next();
+    fionaMono.subscribe(person -> System.out.println(person.getFirstName()));
+  }
+
+  @Test
+  void testFindPersonByIdNotFound() {
+    Flux<Person> personFlux = personRepository.findAll();
+
+    final Integer id = 8;
+
+    Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).single().doOnError(throwable -> {
+      System.out.println("Error occurred");
+      System.out.println(throwable);
+    });
+
+    personMono.subscribe(person -> {
+      System.out.println(person);
+    }, throwable -> {
+      System.out.println("Error occurred");
+      System.out.println(throwable);
+    });
+  }
+
+
 }
